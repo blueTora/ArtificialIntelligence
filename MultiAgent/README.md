@@ -29,6 +29,6 @@ Minimax and alpha-beta are great, but they both assume that you are playing agai
 
 ---
 
-## Question 5 (6 points): Evaluation Function
+## Question 5 : Evaluation Function
 
 Write a better evaluation function for Pacman in the provided function `betterEvaluationFunction`. The evaluation function should evaluate states, rather than actions like your reflex agent evaluation function did. With depth 2 search, your evaluation function should clear the `smallClassic` layout with one random ghost more than half the time and still run at a reasonable rate.
