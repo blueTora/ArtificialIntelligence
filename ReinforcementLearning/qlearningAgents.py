@@ -43,6 +43,7 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
+        self.q_values = {}
 
     def getQValue(self, state, action):
         """
@@ -51,7 +52,11 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if state in self.q_values:
+            if action in self.q_values[state]:
+                return self.q_values[state][action]
+
+        return 0
 
 
     def computeValueFromQValues(self, state):
@@ -62,7 +67,12 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        values = []
+        for action in self.getLegalActions(state):
+            values.append(self.getQValue(state, action))
+
+        return max(values, default=0.0)
+
 
     def computeActionFromQValues(self, state):
         """
@@ -71,7 +81,16 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        max_val = -math.inf
+        action = None
+        for a in self.getLegalActions(state):
+            q_val = self.getQValue(state, a)
+            if q_val > max_val:
+                max_val = q_val
+                action = a
+
+        return action
+
 
     def getAction(self, state):
         """
@@ -86,11 +105,13 @@ class QLearningAgent(ReinforcementAgent):
         """
         # Pick Action
         legalActions = self.getLegalActions(state)
-        action = None
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        rand = random.random()
+        if rand > self.epsilon:
+            return self.computeActionFromQValues(state)
 
-        return action
+        return random.choice(legalActions)
+
 
     def update(self, state, action, nextState, reward):
         """
@@ -102,7 +123,10 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if state not in self.q_values:
+            self.q_values[state] = {action: 0.0}
+
+        self.q_values[state][action] = (1 - self.alpha) * self.getQValue(state, action) + self.alpha * (reward + self.discount * self.getValue(nextState))
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
@@ -156,8 +180,10 @@ class ApproximateQAgent(PacmanQAgent):
         PacmanQAgent.__init__(self, **args)
         self.weights = util.Counter()
 
+
     def getWeights(self):
         return self.weights
+
 
     def getQValue(self, state, action):
         """
@@ -165,14 +191,31 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+
+        sum_q_val = 0
+        for feature in features:
+            weights = self.getWeights()
+            if feature not in weights:
+                weights[feature] = 0
+
+            weight = weights[feature]
+            sum_q_val += features[feature] * weight
+
+        return sum_q_val
+
 
     def update(self, state, action, nextState, reward):
         """
            Should update your weights based on transition
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+        diff = (reward + self.discount * self.getValue(nextState)) - self.getQValue(state, action)
+
+        for feature in self.weights:
+            self.weights[feature] += self.alpha * diff * features[feature]
+
 
     def final(self, state):
         "Called at the end of each game."
@@ -182,5 +225,4 @@ class ApproximateQAgent(PacmanQAgent):
         # did we finish training?
         if self.episodesSoFar == self.numTraining:
             # you might want to print your weights here for debugging
-            "*** YOUR CODE HERE ***"
             pass
