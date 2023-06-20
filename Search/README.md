@@ -50,6 +50,6 @@ Now we'll solve a hard search problem: eating all the Pacman food in as few step
 
 ---
 
-## Question 8 (3 points): Suboptimal Search
+## Question 8 : Suboptimal Search
 
 Sometimes, even with A* and a good heuristic, finding the optimal path through all the dots is hard. In these cases, we'd still like to find a reasonably good path, quickly. In this section, you'll write an agent that always greedily eats the closest dot. `ClosestDotSearchAgent` is implemented for you in searchAgents.py, but it's missing a key function that finds a path to the closest dot.
